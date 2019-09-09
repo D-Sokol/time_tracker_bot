@@ -1,0 +1,12 @@
+venv
+
+# IDE stuff
+.idea
+
+# private files
+*.sh
+notes
+
+# cache
+**/*.py[cod]
+**/__pycache__
