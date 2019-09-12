@@ -4,8 +4,7 @@ import telebot
 
 bot = telebot.TeleBot(os.environ.get('TOKEN'))
 
-# FIXME: it is possible to have 0 filters?
-@bot.message_handler()
+@bot.message_handler(lambda msg: True)
 def default_message_handler(message):
     # it shows structure of message object
     bot.reply_to(message, str(message.__dict__))
