@@ -10,4 +10,5 @@ def default_message_handler(message):
     bot.reply_to(message, str(message.__dict__))
 
 
-bot.polling()
+if __name__ == '__main__':
+    bot.polling()
