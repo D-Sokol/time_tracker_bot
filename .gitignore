@@ -6,6 +6,7 @@ venv
 # private files
 *.sh
 notes
+db.sqlite
 
 # cache
 **/*.py[cod]
