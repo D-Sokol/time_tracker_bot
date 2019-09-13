@@ -20,6 +20,7 @@ def default_message_handler(message):
 @server.route('/')
 def webhook():
     bot.remove_webhook()
+    # TODO: use server.config['SERVER_NAME']
     bot.set_webhook(url='https://time-tracker-bot.herokuapp.com/{}'.format(TOKEN))
     return 'ok'
 
