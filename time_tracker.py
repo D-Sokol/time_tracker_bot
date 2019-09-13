@@ -9,6 +9,7 @@ TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 
+from models import *
 
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
