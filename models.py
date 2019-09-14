@@ -13,14 +13,14 @@ class User(db.Model):
     # TODO: timezone info, user state
 
     # TODO: cascade deletion
-    records = db.relationship('Record', back_populates='user')
+    records = db.relationship('Record', back_populates='user', passive_deletes=True)
 
 
 class Record(db.Model):
     __tablename__ = 'records'
 
     record_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     begin_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
 
