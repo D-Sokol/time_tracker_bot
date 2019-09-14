@@ -10,8 +10,9 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     current_start_time = db.Column(db.Time)
-    #TODO: timezone info, user state
+    # TODO: timezone info, user state
 
+    # TODO: cascade deletion
     records = db.relationship('Record', back_populates='user')
 
 
