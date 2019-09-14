@@ -9,6 +9,17 @@ TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 
+
+@bot.message_handler(commands=['begin'])
+def begin_interval_handler(message):
+    bot.send_message(message.chat.id, text='Detected command /begin')
+
+
+@bot.message_handler(commands=['end'])
+def begin_interval_handler(message):
+    bot.send_message(message.chat.id, text='Detected command /end')
+
+
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
     # it shows structure of message object
