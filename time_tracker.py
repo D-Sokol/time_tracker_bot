@@ -11,6 +11,12 @@ TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(server)
+# FIXME: with operator is required when using init_app, but does not when server given to db constructor.
+with server.app_context():
+    db.create_all()
+
 
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
@@ -34,8 +40,4 @@ def update():
 
 
 if __name__ == '__main__':
-    db.init_app(server)
-    # FIXME: with operator is required when using init_app, but does not when server given to db constructor.
-    with server.app_context():
-        db.create_all()
     server.run()
