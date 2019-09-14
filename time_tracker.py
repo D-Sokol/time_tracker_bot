@@ -9,7 +9,6 @@ TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 
-
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
     # it shows structure of message object
@@ -32,4 +31,4 @@ def update():
     return 'ok'
 
 if __name__ == '__main__':
-    server.run()
+    server.run(host='0.0.0.0', port=os.environ.get('PORT'))
