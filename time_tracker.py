@@ -10,7 +10,7 @@ TOKEN = os.environ.get('TOKEN')
 
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+server.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(server)
 # FIXME: with operator is required when using init_app, but does not when server given to db constructor.
