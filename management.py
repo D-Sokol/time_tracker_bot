@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from .models import session
-from .models import User, Record
+from models import session
+from models import User, Record
 
 
 def ensure_user(chat_id):
