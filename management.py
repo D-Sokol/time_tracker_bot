@@ -38,9 +38,7 @@ def delete_record(record_id):
 # Functions, realizing bot's commands
 def begin_interval(user_id, time=None):
     user = ensure_user(user_id)
-    if time is None:
-        time = datetime.now()
-    user.current_start_time = time
+    user.current_start_time = time or datetime.now()
     session.commit()
 
 
