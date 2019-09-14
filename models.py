@@ -21,8 +21,8 @@ class Record(db.Model):
 
     record_id = db.Column(db.Integer, primary_key=True)
     used_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    begin_time = db.Column(db.Time, nullable=False)
-    end_time = db.Column(db.Time, nullable=False)
+    begin_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
 
     user = db.relationship('User', back_populates='records')
 
