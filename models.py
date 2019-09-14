@@ -27,5 +27,5 @@ class Record(db.Model):
     user = db.relationship('User', back_populates='records')
 
     def duration(self):
-        raise NotImplementedError
+        return str(self.end_time - self.begin_time)
 
