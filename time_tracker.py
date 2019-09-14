@@ -31,4 +31,4 @@ def update():
     return 'ok'
 
 if __name__ == '__main__':
-    server.run(port=os.environ.get('PORT'))
+    server.run(host='0.0.0.0', port=os.environ.get('PORT'))
