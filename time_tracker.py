@@ -14,9 +14,9 @@ server = Flask(__name__)
 server.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(server)
-# FIXME: with operator is required when using init_app, but does not when server given to db constructor.
-with server.app_context():
-    db.create_all()
+# db.app does not set in init_app, while set in __init__
+db.app = server
+db.create_all()
 
 
 @bot.message_handler(commands=['begin'])
