@@ -47,6 +47,7 @@ def begin_interval(user_id, time=None):
     user = ensure_user(user_id)
     user.current_start_time = time or datetime.now()
     session.commit()
+    return user.current_start_time
 
 
 def cancel_interval(user_id):
