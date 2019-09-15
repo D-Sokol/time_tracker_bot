@@ -65,8 +65,11 @@ def get_last_handler(message):
 
 @bot.message_handler(commands=['deletelast'])
 def delete_last_handler(message):
-    management.delete_last_record(message.from_user.id)
-    bot.reply_to(message, 'Your last record was deleted')
+    try:
+        management.delete_last_record(message.from_user.id)
+        bot.reply_to(message, 'Your last record was deleted')
+    except ValueError:
+        bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
 
 
 @bot.message_handler(func=lambda msg: True)
