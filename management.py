@@ -35,10 +35,23 @@ def delete_record(record_id):
         session.commit()
 
 
+def get_last_record(user_id):
+    records = ensure_user(user_id).records
+    if records:
+        return records[-1]
+    raise ValueError('Not found')
+
+
 # Functions, realizing bot's commands
 def begin_interval(user_id, time=None):
     user = ensure_user(user_id)
     user.current_start_time = time or datetime.now()
+    session.commit()
+
+
+def cancel_interval(user_id):
+    user = ensure_user(user_id)
+    user.current_start_time = None
     session.commit()
 
 
@@ -50,3 +63,12 @@ def end_interval(user_id, end_time=None):
         raise ValueError('Cannot end interval without start')
     user.current_start_time = None
     return create_record(user_id, start_time, end_time or datetime.now())
+
+
+def delete_last_record(user_id):
+    session.delete(get_last_record(user_id))
+    session.commit()
+
+
+def get_users_count():
+    return User.query.count()
