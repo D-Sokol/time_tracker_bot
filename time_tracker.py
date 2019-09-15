@@ -3,11 +3,19 @@ import os
 from flask import Flask, request
 import telebot
 
+from models import db
+
 # TODO: config.py
 TOKEN = os.environ.get('TOKEN')
 
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
+server.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(server)
+# FIXME: with operator is required when using init_app, but does not when server given to db constructor.
+with server.app_context():
+    db.create_all()
 
 
 @bot.message_handler(commands=['begin'])
@@ -40,6 +48,7 @@ def update():
     # TODO: understand this line
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode())])
     return 'ok'
+
 
 if __name__ == '__main__':
     server.run(host='0.0.0.0', port=os.environ.get('PORT'))
