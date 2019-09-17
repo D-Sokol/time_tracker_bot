@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+from config import Config
 from server import bot, server
-import management
+from database import management
 
 
 @bot.message_handler(commands=['begin'])
@@ -56,10 +57,11 @@ def delete_last_handler(message):
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
 
 
+# Any testing functions I need
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
-    # it shows structure of message object
-    bot.reply_to(message, str(message.__dict__))
+    if msg.split()[0] == Config.TOKEN:
+        bot.reply_to(message, str(app.config))
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ from flask import Flask, request
 import telebot
 
 from config import Config
-from models import db
+from database import db
 
 
 TOKEN = Config.TOKEN
