@@ -82,7 +82,7 @@ def get_file_handler(message):
 def default_message_handler(message):
     msg = message.text.split()
     if msg and msg[0] == Config.TOKEN:
-        bot.reply_to(message, str(app.config))
+        bot.reply_to(message, str(server.config))
 
 
 if __name__ == '__main__':
