@@ -57,6 +57,26 @@ def delete_last_handler(message):
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
 
 
+@bot.message_handler(commands=['delete'])
+def delete_selected_handler(message):
+    msg = message.text.split()
+    if len(msg) < 2 or not msg[1].isdigit():
+        bot.reply_to(message, 'You have not provided record id to delete')
+    else:
+        record_id = int(msg[1])
+        management.delete_record(record_id)
+        bot.reply_to(message, f'Record #{record_id} was deleted')
+
+
+@bot.message_handler(commands=['getfile'])
+def get_file_handler(message):
+    data = management.records_to_file(message.from_user.id)
+    if data is None:
+        bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
+    else:
+        bot.send_document(message.chat.id, data, caption='Records.csv')
+
+
 # Any testing functions I need
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
