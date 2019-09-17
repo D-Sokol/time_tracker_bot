@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-import os
 from flask import Flask, request
 import telebot
 
+from config import Config
 from models import db
 import management
 
-# TODO: config.py
-TOKEN = os.environ.get('TOKEN')
+TOKEN = Config.TOKEN
 
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+server.config.from_object(Config)
+
 db.init_app(server)
 # db.app does not set in init_app, while set in __init__
 db.app = server
@@ -95,4 +94,4 @@ def update():
 
 
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', port=os.environ.get('PORT'))
+    server.run(host='0.0.0.0', port=Config.PORT)
