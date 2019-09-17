@@ -80,7 +80,8 @@ def get_file_handler(message):
 # Any testing functions I need
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
-    if msg.split()[0] == Config.TOKEN:
+    msg = message.text.split()
+    if msg and msg[0] == Config.TOKEN:
         bot.reply_to(message, str(app.config))
 
 
