@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
-from flask import Flask, request
-import telebot
-
-from config import Config
-from models import db
+from server import bot, server
 import management
-
-TOKEN = Config.TOKEN
-
-bot = telebot.TeleBot(TOKEN)
-server = Flask(__name__)
-server.config.from_object(Config)
-
-db.init_app(server)
-# db.app does not set in init_app, while set in __init__
-db.app = server
-db.create_all()
 
 
 @bot.message_handler(commands=['begin'])
@@ -77,21 +62,5 @@ def default_message_handler(message):
     bot.reply_to(message, str(message.__dict__))
 
 
-# TODO: move flask server creation to another module
-@server.route('/')
-def webhook():
-    bot.remove_webhook()
-    # TODO: use server.config['SERVER_NAME']
-    bot.set_webhook(url='https://time-tracker-bot.herokuapp.com/{}'.format(TOKEN))
-    return 'ok'
-
-
-@server.route('/' + TOKEN, methods=['POST'])
-def update():
-    # TODO: understand this line
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode())])
-    return 'ok'
-
-
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', port=Config.PORT)
+    server.run(host='0.0.0.0')
