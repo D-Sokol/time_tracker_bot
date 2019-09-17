@@ -5,3 +5,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     TOKEN = os.environ['TOKEN']
+    PORT = os.environ.get('PORT')
