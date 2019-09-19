@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import tempfile
+
 from config import Config
 from server import bot, server
 from database import management
@@ -70,11 +72,16 @@ def delete_selected_handler(message):
 
 @bot.message_handler(commands=['getfile'])
 def get_file_handler(message):
-    data = management.records_to_file(message.from_user.id)
-    if data is None:
+    user = management.ensure_user(message.from_user.id)
+    if not user.records:
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
     else:
-        bot.send_document(message.chat.id, data.encode(), caption='Records.csv')
+        file = tempfile.NamedTemporaryFile(mode='wt')
+        # Since NamedTemporaryFile has special object to delete file,
+        #  it is safe to set file.name to any desired value
+        file.name = 'records.csv'
+        management.records_to_file(user.user_id, file)
+        bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
 
 
 # Any testing functions I need

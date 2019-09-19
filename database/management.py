@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 
 from . import session
@@ -75,12 +76,13 @@ def get_users_count():
     return User.query.count()
 
 
-def records_to_file(user_id):
+def records_to_file(user_id, file):
     records = ensure_user(user_id).records
-    if not records:
-        return None
+    writer = csv.writer(file)
+    # write the header
+    writer.writerow(('Id', 'Begin time', 'End time', 'Duration'))
 
-    return '\n'.join(
-        f'{record.record_id},"{record.begin_time}","{record.end_time}",{record.duration()}'
+    writer.writerows(
+        (record.record_id, record.begin_time, record.end_time, record.duration())
         for record in records
     )
