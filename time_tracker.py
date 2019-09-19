@@ -74,7 +74,7 @@ def get_file_handler(message):
     if data is None:
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
     else:
-        bot.send_document(message.chat.id, data, caption='Records.csv')
+        bot.send_document(message.chat.id, data.encode(), caption='Records.csv')
 
 
 # Any testing functions I need
