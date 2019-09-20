@@ -76,11 +76,12 @@ def get_file_handler(message):
     if not user.records:
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
     else:
-        file = tempfile.NamedTemporaryFile(mode='wt')
+        file = tempfile.NamedTemporaryFile(mode='w+t')
         # Since NamedTemporaryFile has special object to delete file,
         #  it is safe to set file.name to any desired value
         file.name = 'records.csv'
         management.records_to_file(user.user_id, file)
+        file.seek(0)
         bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
 
 
