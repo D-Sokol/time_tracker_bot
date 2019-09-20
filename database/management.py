@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 
 from . import session
@@ -73,3 +74,15 @@ def delete_last_record(user_id):
 
 def get_users_count():
     return User.query.count()
+
+
+def records_to_file(user_id, file):
+    records = ensure_user(user_id).records
+    writer = csv.writer(file)
+    # write the header
+    writer.writerow(('Id', 'Begin time', 'End time', 'Duration'))
+
+    writer.writerows(
+        (record.record_id, record.begin_time, record.end_time, record.duration())
+        for record in records
+    )

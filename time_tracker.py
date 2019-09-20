@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import tempfile
+
 from config import Config
 from server import bot, server
 from database import management
@@ -57,11 +59,38 @@ def delete_last_handler(message):
         bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
 
 
+@bot.message_handler(commands=['delete'])
+def delete_selected_handler(message):
+    msg = message.text.split()
+    if len(msg) < 2 or not msg[1].isdigit():
+        bot.reply_to(message, 'You have not provided record id to delete')
+    else:
+        record_id = int(msg[1])
+        management.delete_record(record_id)
+        bot.reply_to(message, f'Record #{record_id} was deleted')
+
+
+@bot.message_handler(commands=['getfile'])
+def get_file_handler(message):
+    user = management.ensure_user(message.from_user.id)
+    if not user.records:
+        bot.reply_to(message, 'You have no any records. Use /begin and /end to add them')
+    else:
+        file = tempfile.NamedTemporaryFile(mode='w+t')
+        # Since NamedTemporaryFile has special object to delete file,
+        #  it is safe to set file.name to any desired value
+        file.name = 'records.csv'
+        management.records_to_file(user.user_id, file)
+        file.seek(0)
+        bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
+
+
 # Any testing functions I need
 @bot.message_handler(func=lambda msg: True)
 def default_message_handler(message):
-    if msg.split()[0] == Config.TOKEN:
-        bot.reply_to(message, str(app.config))
+    msg = message.text.split()
+    if msg and msg[0] == Config.TOKEN:
+        bot.reply_to(message, str(server.config))
 
 
 if __name__ == '__main__':
