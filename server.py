@@ -21,7 +21,7 @@ db.create_all()
 def webhook():
     bot.remove_webhook()
     # TODO: use server.config['SERVER_NAME']
-    bot.set_webhook(url='https://time-tracker-bot.herokuapp.com/{}'.format(TOKEN))
+    bot.set_webhook(url='https://{}/{}'.format(Config.HOST, TOKEN))
     return 'ok'
 
 
