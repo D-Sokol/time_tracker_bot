@@ -1,6 +1,5 @@
 import csv
 from datetime import datetime
-from dateutil.tz import tzutc
 
 from . import session
 from .models import User, Record
@@ -48,9 +47,9 @@ def get_last_record(user_id):
 def begin_interval(user_id, timestamp=None):
     user = ensure_user(user_id)
     if timestamp is None:
-        user.current_start_time = datetime.now(tzutc())
+        user.current_start_time = datetime.utcnow()
     else:
-        user.current_start_time = datetime.fromtimestamp(timestamp, tzutc())
+        user.current_start_time = datetime.utcfromtimestamp(timestamp)
     session.commit()
     return user.current_start_time
 
@@ -68,7 +67,7 @@ def end_interval(user_id, timestamp=None):
         # TODO: custom exceptions
         raise ValueError('Cannot end interval without start')
     user.current_start_time = None
-    end_time = datetime.now(tzutc()) if timestamp is None else datetime.fromtimestamp(timestamp, tzutc())
+    end_time = datetime.utcnow() if timestamp is None else datetime.utcfromtimestamp(timestamp)
     return create_record(user_id, start_time, end_time)
 
 
