@@ -8,7 +8,7 @@ from database import management
 
 @bot.message_handler(commands=['begin'])
 def begin_interval_handler(message):
-    time = management.begin_interval(message.from_user.id)
+    time = management.begin_interval(message.from_user.id, message.date)
     bot.reply_to(message, 'New interval started at {}'.format(time.strftime('%T')))
 
 
@@ -21,8 +21,9 @@ def cancel_interval_handler(message):
 @bot.message_handler(commands=['end'])
 def end_interval_handler(message):
     try:
-        record = management.end_interval(message.from_user.id)
+        record = management.end_interval(message.from_user.id, message.date)
         # TODO: move '{} - {} (duration {})' to Record.__str__
+        #  TODO: get user's timezone.
         bot.reply_to(message, 'Record added: {} - {} (duration {})'.format(
             record.begin_time.strftime('%T'),
             record.end_time.strftime('%T'),
