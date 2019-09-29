@@ -9,7 +9,7 @@ from database import management
 @bot.message_handler(commands=['begin'])
 def begin_interval_handler(message):
     time = management.begin_interval(message.from_user.id, message.date)
-    bot.reply_to(message, 'New interval started at {}'.format(time.strftime('%T')))
+    bot.reply_to(message, 'New interval started at {}'.format(time))
 
 
 @bot.message_handler(commands=['cancel'])
@@ -23,10 +23,9 @@ def end_interval_handler(message):
     try:
         record = management.end_interval(message.from_user.id, message.date)
         # TODO: move '{} - {} (duration {})' to Record.__str__
-        #  TODO: get user's timezone.
         bot.reply_to(message, 'Record added: {} - {} (duration {})'.format(
-            record.begin_time.strftime('%T'),
-            record.end_time.strftime('%T'),
+            record.format_begin_time(),
+            record.format_end_time(),
             record.duration(),
         ))
     except ValueError as e:
@@ -43,8 +42,8 @@ def get_last_handler(message):
     try:
         record = management.get_last_record(message.from_user.id)
         bot.reply_to(message, 'Last record: {} - {} (duration {})'.format(
-            record.begin_time.strftime('%T'),
-            record.end_time.strftime('%T'),
+            record.format_begin_time(),
+            record.format_end_time(),
             record.duration(),
         ))
     except ValueError:
@@ -84,6 +83,9 @@ def get_file_handler(message):
         management.records_to_file(user.user_id, file)
         file.seek(0)
         bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
+
+
+# TODO: commands for timezone support
 
 
 # Any testing functions I need

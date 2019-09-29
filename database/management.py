@@ -51,7 +51,7 @@ def begin_interval(user_id, timestamp=None):
     else:
         user.current_start_time = datetime.utcfromtimestamp(timestamp)
     session.commit()
-    return user.current_start_time
+    return user.wrap_time(user.current_start_time)
 
 
 def cancel_interval(user_id):
@@ -87,6 +87,6 @@ def records_to_file(user_id, file):
     writer.writerow(('Id', 'Begin time', 'End time', 'Duration'))
 
     writer.writerows(
-        (record.record_id, record.begin_time, record.end_time, record.duration())
+        (record.record_id, record.format_begin_time(), record.format_end_time(), record.duration())
         for record in records
     )
