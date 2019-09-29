@@ -1,7 +1,7 @@
 from dateutil.tz import tzutc, gettz, tzoffset
 
 
-def get_timezone(tzname, offset=None):
+def get_timezone(tzname='UTC', offset=None):
     """
     Returns timezone from string.
     :param tzname:
@@ -14,6 +14,8 @@ def get_timezone(tzname, offset=None):
     if offset is not None:
         return tzoffset(tzname, offset)
     else:
+        if tzname == 'UTC':
+            return tzutc()
         if tzname[0] in '+-0123456789':
             tzname = 'GMT' + tzname
         tz = gettz(tzname)
