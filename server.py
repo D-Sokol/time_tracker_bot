@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_migrate import Migrate
 import telebot
 
 from config import Config
@@ -16,6 +17,7 @@ db.init_app(server)
 db.app = server
 db.create_all()
 
+migrate = Migrate(server, db)
 
 @server.route('/')
 def webhook():
