@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 
 from . import session
+from . import timezone
 from .models import User, Record
 
 
@@ -44,11 +45,14 @@ def get_last_record(user_id):
 
 
 # Functions, realizing bot's commands
-def begin_interval(user_id, time=None):
+def begin_interval(user_id, timestamp=None):
     user = ensure_user(user_id)
-    user.current_start_time = time or datetime.now()
+    if timestamp is None:
+        user.current_start_time = datetime.utcnow()
+    else:
+        user.current_start_time = datetime.utcfromtimestamp(timestamp)
     session.commit()
-    return user.current_start_time
+    return user.wrap_time(user.current_start_time)
 
 
 def cancel_interval(user_id):
@@ -57,14 +61,15 @@ def cancel_interval(user_id):
     session.commit()
 
 
-def end_interval(user_id, end_time=None):
+def end_interval(user_id, timestamp=None):
     user = ensure_user(user_id)
     start_time = user.current_start_time
     if start_time is None:
         # TODO: custom exceptions
         raise ValueError('Cannot end interval without start')
     user.current_start_time = None
-    return create_record(user_id, start_time, end_time or datetime.now())
+    end_time = datetime.utcnow() if timestamp is None else datetime.utcfromtimestamp(timestamp)
+    return create_record(user_id, start_time, end_time)
 
 
 def delete_last_record(user_id):
@@ -76,6 +81,18 @@ def get_users_count():
     return User.query.count()
 
 
+def set_timezone(user_id, tzname):
+    user = ensure_user(user_id)
+    tz = timezone.get_timezone(tzname)
+    user.timezone = tzname if isinstance(tzname, str) else tz.tzname(datetime.now())
+    session.commit()
+    return user.timezone
+
+
+def get_timezone(user_id):
+    return ensure_user(user_id).timezone
+
+
 def records_to_file(user_id, file):
     records = ensure_user(user_id).records
     writer = csv.writer(file)
@@ -83,6 +100,6 @@ def records_to_file(user_id, file):
     writer.writerow(('Id', 'Begin time', 'End time', 'Duration'))
 
     writer.writerows(
-        (record.record_id, record.begin_time, record.end_time, record.duration())
+        (record.record_id, record.format_begin_time(), record.format_end_time(), record.duration())
         for record in records
     )

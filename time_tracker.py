@@ -8,8 +8,8 @@ from database import management
 
 @bot.message_handler(commands=['begin'])
 def begin_interval_handler(message):
-    time = management.begin_interval(message.from_user.id)
-    bot.reply_to(message, 'New interval started at {}'.format(time.strftime('%T')))
+    time = management.begin_interval(message.from_user.id, message.date)
+    bot.reply_to(message, 'New interval started at {}'.format(time))
 
 
 @bot.message_handler(commands=['cancel'])
@@ -21,11 +21,11 @@ def cancel_interval_handler(message):
 @bot.message_handler(commands=['end'])
 def end_interval_handler(message):
     try:
-        record = management.end_interval(message.from_user.id)
+        record = management.end_interval(message.from_user.id, message.date)
         # TODO: move '{} - {} (duration {})' to Record.__str__
         bot.reply_to(message, 'Record added: {} - {} (duration {})'.format(
-            record.begin_time.strftime('%T'),
-            record.end_time.strftime('%T'),
+            record.format_begin_time(),
+            record.format_end_time(),
             record.duration(),
         ))
     except ValueError as e:
@@ -42,8 +42,8 @@ def get_last_handler(message):
     try:
         record = management.get_last_record(message.from_user.id)
         bot.reply_to(message, 'Last record: {} - {} (duration {})'.format(
-            record.begin_time.strftime('%T'),
-            record.end_time.strftime('%T'),
+            record.format_begin_time(),
+            record.format_end_time(),
             record.duration(),
         ))
     except ValueError:
@@ -83,6 +83,32 @@ def get_file_handler(message):
         management.records_to_file(user.user_id, file)
         file.seek(0)
         bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
+
+
+@bot.message_handler(commands=['settimezone'])
+def set_user_timezone(message):
+    try:
+        # TODO: has telebot any methods to get command arguments?
+        args = message.text.split()
+        if len(args) < 2:
+            bot.reply_to(message, f'You have not provided timezone name')
+            return
+        tzname = args[1]
+        try:
+            tzname = int(tzname)
+        except ValueError:
+            pass
+
+        tzname = management.set_timezone(message.chat.id, tzname)
+        bot.reply_to(message, f'Your time zone set to {tzname}')
+    except ValueError as e:
+        bot.reply_to(message, str(e))
+
+
+@bot.message_handler(commands=['gettimezone'])
+def get_user_timezone(message):
+    tzname = management.get_timezone(message.chat.id)
+    bot.reply_to(message, f'Your current time zone: {tzname}')
 
 
 # Any testing functions I need
