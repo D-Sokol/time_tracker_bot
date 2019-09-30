@@ -85,7 +85,30 @@ def get_file_handler(message):
         bot.send_document(message.chat.id, file, caption='Total records: {}'.format(len(user.records)))
 
 
-# TODO: commands for timezone support
+@bot.message_handler(commands=['settimezone'])
+def set_user_timezone(message):
+    try:
+        # TODO: has telebot any methods to get command arguments?
+        args = message.text.split()
+        if len(args) < 2:
+            bot.reply_to(message, f'You have not provided timezone name')
+            return
+        tzname = args[1]
+        try:
+            tzname = int(tzname)
+        except ValueError:
+            pass
+
+        tzname = management.set_timezone(message.chat.id, tzname)
+        bot.reply_to(message, f'Your time zone set to {tzname}')
+    except ValueError as e:
+        bot.reply_to(message, str(e))
+
+
+@bot.message_handler(commands=['gettimezone'])
+def get_user_timezone(message):
+    tzname = management.get_timezone(message.chat.id)
+    bot.reply_to(message, f'Your current time zone: {tzname}')
 
 
 # Any testing functions I need

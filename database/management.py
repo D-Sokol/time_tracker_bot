@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 
 from . import session
+from . import timezone
 from .models import User, Record
 
 
@@ -78,6 +79,18 @@ def delete_last_record(user_id):
 
 def get_users_count():
     return User.query.count()
+
+
+def set_timezone(user_id, tzname):
+    user = ensure_user(user_id)
+    tz = timezone.get_timezone(tzname)
+    user.timezone = tzname if isinstance(tzname, str) else tz.tzname(datetime.now())
+    session.commit()
+    return user.timezone
+
+
+def get_timezone(user_id):
+    return ensure_user(user_id).timezone
 
 
 def records_to_file(user_id, file):

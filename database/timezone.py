@@ -1,18 +1,22 @@
 from dateutil.tz import tzutc, gettz, tzoffset
 
 
-def get_timezone(tzname='UTC', offset=None):
+def parse_time(min_offset):
+    hours, minutes = divmod(abs(min_offset), 60)
+    sign = '+' if min_offset >= 0 else '-'
+    return f'{sign}{hours:02d}:{minutes:02d}'
+
+
+def get_timezone(tzname='UTC'):
     """
     Returns timezone from string.
     :param tzname:
-        timezone name ('Europe/Vienna') or offset ('GMT+02:00' or '+2:00').
-        Ignored is offset provived
-    :param offset:
-        timezone offset from UTC in seconds.
+        timezone name ('Europe/Vienna') or offset ('GMT+02:00' or '+2:00')
+        or timezone offset from UTC in minutes.
     :return: timezone object
     """
-    if offset is not None:
-        return tzoffset(tzname, offset)
+    if isinstance(tzname, int):
+        return tzoffset('GMT' + parse_time(tzname), 60 * tzname)
     else:
         if tzname == 'UTC':
             return tzutc()
