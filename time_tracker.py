@@ -7,18 +7,21 @@ from database import management
 from keyboards import *
 
 
+@bot.message_handler(func=text_trigger('Begin interval'))
 @bot.message_handler(commands=['begin'])
 def begin_interval_handler(message):
     time = management.begin_interval(message.from_user.id, message.date)
     bot.reply_to(message, 'New interval started at {}'.format(time), reply_markup=keyboard_started)
 
 
+@bot.message_handler(func=text_trigger('Cancel interval'))
 @bot.message_handler(commands=['cancel'])
 def cancel_interval_handler(message):
     management.cancel_interval(message.from_user.id)
     bot.reply_to(message, 'Your last begin time was cleared', reply_markup=keyboard_notstarted)
 
 
+@bot.message_handler(func=text_trigger('End interval'))
 @bot.message_handler(commands=['end'])
 def end_interval_handler(message):
     try:
@@ -38,6 +41,7 @@ def users_count_handler(message):
     bot.reply_to(message, 'Users: {}'.format(management.get_users_count()))
 
 
+@bot.message_handler(func=text_trigger('Last record'))
 @bot.message_handler(commands=['getlast'])
 def get_last_handler(message):
     try:
@@ -71,6 +75,7 @@ def delete_selected_handler(message):
         bot.reply_to(message, f'Record #{record_id} was deleted')
 
 
+@bot.message_handler(func=text_trigger('File'))
 @bot.message_handler(commands=['getfile'])
 def get_file_handler(message):
     user = management.ensure_user(message.from_user.id)
@@ -106,6 +111,7 @@ def set_user_timezone(message):
         bot.reply_to(message, str(e))
 
 
+@bot.message_handler(func=text_trigger('My timezone'))
 @bot.message_handler(commands=['gettimezone'])
 def get_user_timezone(message):
     tzname = management.get_timezone(message.chat.id)

@@ -11,3 +11,10 @@ keyboard_started.row('End interval', 'Cancel interval')
 keyboard_started.row('Last record', 'File', 'My timezone')
 
 
+def text_trigger(text):
+    """
+    Factory of function which can be used in bot.message_handler decorators instead of long lambda expression.
+    """
+    def handle(message):
+        return message.content_type == 'text' and message.text == text
+    return handle
