@@ -4,7 +4,7 @@ import tempfile
 from config import Config
 from server import bot, server
 from database import management
-from keyboards import *
+from keyboards import keyboard_notstarted, keyboard_started, text_trigger
 
 
 @bot.message_handler(func=text_trigger('Begin interval'))
