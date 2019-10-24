@@ -4,18 +4,19 @@ import tempfile
 from config import Config
 from server import bot, server
 from database import management
+from keyboards import *
 
 
 @bot.message_handler(commands=['begin'])
 def begin_interval_handler(message):
     time = management.begin_interval(message.from_user.id, message.date)
-    bot.reply_to(message, 'New interval started at {}'.format(time))
+    bot.reply_to(message, 'New interval started at {}'.format(time), reply_markup=keyboard_started)
 
 
 @bot.message_handler(commands=['cancel'])
 def cancel_interval_handler(message):
     management.cancel_interval(message.from_user.id)
-    bot.reply_to(message, 'Your last begin time was cleared')
+    bot.reply_to(message, 'Your last begin time was cleared', reply_markup=keyboard_notstarted)
 
 
 @bot.message_handler(commands=['end'])
@@ -27,7 +28,7 @@ def end_interval_handler(message):
             record.format_begin_time(),
             record.format_end_time(),
             record.duration(),
-        ))
+        ), reply_markup=keyboard_notstarted)
     except ValueError as e:
         bot.reply_to(message, str(e))
 
