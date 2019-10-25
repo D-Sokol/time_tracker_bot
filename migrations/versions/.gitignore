@@ -1,0 +1,2 @@
+# Migration files should not be ignored, but this very folder must be under git control
+# So I create this gitignore file without actual content.
