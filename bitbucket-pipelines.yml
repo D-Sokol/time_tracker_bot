@@ -1,21 +1,21 @@
 image: python:3.7.3
 
 pipelines:
-  default:
-    - step:
-        name: Create archieve with code
-        script:
-          - tar -czvf "time-tracker-bot.tar.gz" *
-        artifacts:
-          - time-tracker-bot.tar.gz
-    - step:
-        name: Deploy on Heoku
-        deployment: production
-        script:
-          - 
-          - pipe: atlassian/heroku-deploy:1.1.0
-            variables:
-              HEROKU_API_KEY: $HEROKU_API_KEY
-              HEROKU_APP_NAME: $HEROKU_APP_NAME
-              ZIP_FILE: "time-tracker-bot.tar.gz"
-              WAIT: 'true'
+  branches:
+    master:
+      - step:
+          name: Create archieve with code
+          script:
+            - tar -czvf "time-tracker-bot.tar.gz" *
+          artifacts:
+            - time-tracker-bot.tar.gz
+      - step:
+          name: Deploy on Heoku
+          deployment: production
+          script:
+            - pipe: atlassian/heroku-deploy:1.1.0
+              variables:
+                HEROKU_API_KEY: $HEROKU_API_KEY
+                HEROKU_APP_NAME: $HEROKU_APP_NAME
+                ZIP_FILE: "time-tracker-bot.tar.gz"
+                WAIT: 'true'
