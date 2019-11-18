@@ -9,8 +9,6 @@ class User(db.Model):
     current_start_time = db.Column(db.DateTime)
     timezone = db.Column(db.String(30), nullable=False, server_default='UTC')
 
-    records = db.relationship('Record', back_populates='user', passive_deletes=True)
-
     def wrap_time(self, dt):
         tz = get_timezone(self.timezone)
         return convert_to_tz(dt, tz).strftime('%T')
@@ -25,7 +23,7 @@ class Record(db.Model):
     begin_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
 
-    user = db.relationship('User', back_populates='records')
+    user = db.relationship('User', backref=db.backref('records', cascade='delete'))
 
     def format_begin_time(self):
         return self.user.wrap_time(self.begin_time)

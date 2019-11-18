@@ -103,15 +103,24 @@ class TestUsersWithRecords(BaseApplicationTest):
         self.assertListEqual(user.records, [record])
 
     def test_cascade_deletion(self):
-        pass
+        user1 = ensure_user(42)
+        user2 = ensure_user(43)
+
+        begin_interval(42)
+        begin_interval(43)
+        end_interval(43)
+        begin_interval(43)
+        end_interval(43)
+        end_interval(42)
+
+        self.assertEqual(len(user1.records), 1)
+        self.assertEqual(len(user2.records), 2)
+
+        delete_user(43)
+        self.assertEqual(get_users_count(), 1)
+        self.assertEqual(Record.query.count(), 1)
 
     def test_last_record(self):
-        pass
-
-    def test_user_wrap_time(self):
-        pass
-
-    def test_record_format_time(self):
         pass
 
 
@@ -120,4 +129,10 @@ class TestUsersWithTimezones(BaseApplicationTest):
         pass
 
     def test_get_tz(self):
+        pass
+
+    def test_user_wrap_time(self):
+        pass
+
+    def test_record_format_time(self):
         pass
