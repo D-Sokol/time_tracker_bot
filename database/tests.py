@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from test import BaseApplicationTest
 from .management import *
+from .timezone import parse_time, get_timezone, convert_to_tz
+
 
 class TestUsers(BaseApplicationTest):
     def test_ensure(self):
@@ -76,21 +78,39 @@ class TestRecords(BaseApplicationTest):
 
 
 class TestTimeZone(BaseApplicationTest):
+    def assert_offset(self, tz, min_offset):
+        dt = datetime.now()
+        self.assertEqual(tz.utcoffset(dt).total_seconds(), 60 * min_offset)
+
     def test_parse_time(self):
-        pass
+        offsets = [0, 60, -60, 360, -360, 14, -14]
+        responses = ['+00:00', '+01:00', '-01:00', '+06:00', '-06:00', '+00:14', '-00:14']
+        assert len(offsets) == len(responses)
+
+        for offset, response in zip(offsets, responses):
+            self.assertEqual(response, parse_time(offset))
 
     def test_get_tz(self):
         with self.subTest('From timezone'):
-            pass
+            self.assert_offset(get_timezone('Asia/Hong_Kong'), 480)
         with self.subTest('From offset as string'):
-            pass
+            self.assert_offset(get_timezone('2:00'), 120)
+            self.assert_offset(get_timezone('+2:00'), 120)
+            self.assert_offset(get_timezone('-2:00'), -120)
         with self.subTest('From offset as number'):
-            pass
+            for i in range(-130, 131, 13):
+                self.assert_offset(get_timezone(i), i)
         with self.subTest('From UTC'):
-            pass
+            self.assert_offset(get_timezone(), 0)
+            self.assert_offset(get_timezone('UTC'), 0)
 
     def test_convert_to_tz(self):
-        pass
+        dt = datetime.now()
+        for offset in range(-130, 131, 13):
+            tz = get_timezone(offset)
+            tz = convert_to_tz(dt, tz).tzinfo
+            self.assert_offset(tz, offset)
+
 
 class TestUsersWithRecords(BaseApplicationTest):
     def test_creation_by_user(self):
