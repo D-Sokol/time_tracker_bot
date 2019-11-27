@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from test import BaseApplicationTest
 from .management import *
@@ -56,10 +56,23 @@ class TestRecords(BaseApplicationTest):
         self.assertEqual(record.user_id, 42)
 
     def test_delete(self):
-        pass
+        user = ensure_user(42)
+        begin_interval(42)
+        record1 = end_interval(42)
+        begin_interval(42)
+        record2 = end_interval(42)
+        delete_record(record2.record_id)
+        self.assertListEqual(user.records, [record1])
+        self.assertEqual(Record.query.count(), 1)
 
     def test_duration(self):
-        pass
+        now = datetime.now()
+        delta = timedelta(hours=1, minutes=12, seconds=4)
+        for i in range(10):
+            record = create_record(42, now + i * delta, now + (i+1) * delta)
+            self.assertEqual(record.begin_time, now + i * delta)
+            self.assertEqual(record.end_time, now + (i+1) * delta)
+            self.assertEqual(record.duration(), '1:12:04')
 
 
 class TestTimeZone(BaseApplicationTest):
