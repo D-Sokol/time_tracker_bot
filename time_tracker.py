@@ -105,7 +105,7 @@ def set_user_timezone(message):
         except ValueError:
             pass
 
-        tzname = management.set_timezone(message.chat.id, tzname)
+        tzname = management.set_user_timezone(message.chat.id, tzname)
         bot.reply_to(message, f'Your time zone set to {tzname}')
     except ValueError as e:
         bot.reply_to(message, str(e))
@@ -114,7 +114,7 @@ def set_user_timezone(message):
 @bot.message_handler(func=text_trigger('My timezone'))
 @bot.message_handler(commands=['gettimezone'])
 def get_user_timezone(message):
-    tzname = management.get_timezone(message.chat.id)
+    tzname = management.get_user_timezone(message.chat.id)
     bot.reply_to(message, f'Your current time zone: {tzname}')
 
 

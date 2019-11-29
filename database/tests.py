@@ -6,6 +6,11 @@ from .management import *
 from .timezone import parse_time, get_timezone, convert_to_tz
 
 
+def check_timezone_offset(tester, tz, min_offset):
+    dt = datetime.now()
+    tester.assertEqual(tz.utcoffset(dt).total_seconds(), 60 * min_offset)
+
+
 class TestUsers(BaseApplicationTest):
     def test_ensure(self):
         user = ensure_user(42)
@@ -78,10 +83,6 @@ class TestRecords(BaseApplicationTest):
 
 
 class TestTimeZone(BaseApplicationTest):
-    def assert_offset(self, tz, min_offset):
-        dt = datetime.now()
-        self.assertEqual(tz.utcoffset(dt).total_seconds(), 60 * min_offset)
-
     def test_parse_time(self):
         offsets = [0, 60, -60, 360, -360, 14, -14]
         responses = ['+00:00', '+01:00', '-01:00', '+06:00', '-06:00', '+00:14', '-00:14']
@@ -92,24 +93,24 @@ class TestTimeZone(BaseApplicationTest):
 
     def test_get_tz(self):
         with self.subTest('From timezone'):
-            self.assert_offset(get_timezone('Asia/Hong_Kong'), 480)
+            check_timezone_offset(self, get_timezone('Asia/Hong_Kong'), 480)
         with self.subTest('From offset as string'):
-            self.assert_offset(get_timezone('2:00'), 120)
-            self.assert_offset(get_timezone('+2:00'), 120)
-            self.assert_offset(get_timezone('-2:00'), -120)
+            check_timezone_offset(self, get_timezone('2:00'), 120)
+            check_timezone_offset(self, get_timezone('+2:00'), 120)
+            check_timezone_offset(self, get_timezone('-2:00'), -120)
         with self.subTest('From offset as number'):
             for i in range(-130, 131, 13):
-                self.assert_offset(get_timezone(i), i)
+                check_timezone_offset(self, get_timezone(i), i)
         with self.subTest('From UTC'):
-            self.assert_offset(get_timezone(), 0)
-            self.assert_offset(get_timezone('UTC'), 0)
+            check_timezone_offset(self, get_timezone(), 0)
+            check_timezone_offset(self, get_timezone('UTC'), 0)
 
     def test_convert_to_tz(self):
         dt = datetime.now()
         for offset in range(-130, 131, 13):
             tz = get_timezone(offset)
             tz = convert_to_tz(dt, tz).tzinfo
-            self.assert_offset(tz, offset)
+            check_timezone_offset(self, tz, offset)
 
 
 class TestUsersWithRecords(BaseApplicationTest):
@@ -154,18 +155,64 @@ class TestUsersWithRecords(BaseApplicationTest):
         self.assertEqual(Record.query.count(), 1)
 
     def test_last_record(self):
-        pass
+        begin_interval(13)
+        begin_interval(16)
+        end_interval(13)
+        begin_interval(13)
+        end_interval(16)
+        begin_interval(16)
+        begin_interval(13)
+        rec16 = end_interval(16)
+        rec13 = end_interval(13)
+        self.assertEqual(get_last_record(13), rec13)
+        self.assertEqual(get_last_record(16), rec16)
 
 
 class TestUsersWithTimezones(BaseApplicationTest):
     def test_set_tz(self):
-        pass
+        user = ensure_user(42)
+        tz = set_user_timezone(42, '+2:01')
+        tz = get_timezone(tz)
+        check_timezone_offset(self, tz, 121)
+        self.assertEqual(user.timezone, '+2:01')
+
+        tz = set_user_timezone(42, 'Asia/Hong_Kong')
+        tz = get_timezone(tz)
+        check_timezone_offset(self, tz, 480)
+        self.assertEqual(user.timezone, 'Asia/Hong_Kong')
+
+        tz = set_user_timezone(42, 'UTC')
+        tz = get_timezone(tz)
+        check_timezone_offset(self, tz, 0)
+        self.assertEqual(user.timezone, 'UTC')
 
     def test_get_tz(self):
-        pass
+        set_user_timezone(42, '+2:01')
+        self.assertEqual(get_user_timezone(42), '+2:01')
+
+        set_user_timezone(42, 'Asia/Hong_Kong')
+        self.assertEqual(get_user_timezone(42), 'Asia/Hong_Kong')
+
+        set_user_timezone(42, 'UTC')
+        self.assertEqual(get_user_timezone(42), 'UTC')
 
     def test_user_wrap_time(self):
-        pass
+        user = ensure_user(42)
+        record = create_record(42, datetime(1970, 1, 1), datetime(1971, 1, 1))
+        self.assertEqual(user.wrap_time(record.begin_time), '00:00:00')
+        set_user_timezone(user.user_id, 'GMT-03:00')
+        self.assertEqual(user.wrap_time(record.begin_time), '21:00:00')
+        set_user_timezone(user.user_id, 'Asia/Hong_Kong')
+        self.assertEqual(user.wrap_time(record.begin_time), '08:00:00')
 
     def test_record_format_time(self):
-        pass
+        user = ensure_user(42)
+        record = create_record(42, datetime(1970, 1, 1), datetime(1971, 1, 1))
+        self.assertEqual(record.format_begin_time(), '00:00:00')
+        self.assertEqual(record.format_end_time(), '00:00:00')
+        set_user_timezone(user.user_id, 'GMT-03:00')
+        self.assertEqual(record.format_begin_time(), '21:00:00')
+        self.assertEqual(record.format_end_time(), '21:00:00')
+        set_user_timezone(user.user_id, 'Asia/Hong_Kong')
+        self.assertEqual(record.format_begin_time(), '08:00:00')
+        self.assertEqual(record.format_end_time(), '08:00:00')
