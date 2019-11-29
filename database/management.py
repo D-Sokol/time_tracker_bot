@@ -81,7 +81,7 @@ def get_users_count():
     return User.query.count()
 
 
-def set_timezone(user_id, tzname):
+def set_user_timezone(user_id, tzname):
     user = ensure_user(user_id)
     tz = timezone.get_timezone(tzname)
     user.timezone = tzname if isinstance(tzname, str) else tz.tzname(datetime.now())
@@ -89,7 +89,7 @@ def set_timezone(user_id, tzname):
     return user.timezone
 
 
-def get_timezone(user_id):
+def get_user_timezone(user_id):
     return ensure_user(user_id).timezone
 
 

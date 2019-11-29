@@ -6,18 +6,20 @@ from config import Config
 from database import db
 
 
-TOKEN = Config.TOKEN
+migrate = Migrate()
 
-bot = telebot.TeleBot(TOKEN)
-server = Flask(__name__)
-server.config.from_object(Config)
+def create_server(config=Config):
+    app = Flask(__name__)
+    app.config.from_object(config)
 
-db.init_app(server)
-# db.app does not set in init_app, but set in __init__
-db.app = server
-db.create_all()
+    db.init_app(app)
+    migrate.init_app(app, db)
 
-migrate = Migrate(server, db)
+    return app
+
+server = create_server()
+bot = telebot.TeleBot(server.config['TOKEN'])
+
 
 @server.route('/')
 def webhook():
@@ -27,7 +29,7 @@ def webhook():
     return 'ok'
 
 
-@server.route('/' + TOKEN, methods=['POST'])
+@server.route('/' + server.config['TOKEN'], methods=['POST'])
 def update():
     # TODO: understand this line
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode())])
